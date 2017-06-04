@@ -1,6 +1,6 @@
 <?php
-require_once(_XE_PATH_.'modules/exam/exam.item.php');
-require_once(_XE_PATH_.'modules/exam/exam.question.item.php');
+require_once(_XE_PATH_ . 'modules/exam/exam.item.php');
+require_once(_XE_PATH_ . 'modules/exam/exam.question.item.php');
 
 /**
  * @class  exam
@@ -9,44 +9,29 @@ require_once(_XE_PATH_.'modules/exam/exam.question.item.php');
  */
 class exam extends ModuleObject
 {
-	var $search_option = array('exam_title','user_name','nick_name'); /// 검색 옵션
+	var $search_option = array('exam_title', 'user_name', 'nick_name'); /// 검색 옵션
 	var $order_target = array('join_count', 'regdate', 'last_update'); // 정렬 옵션
 	var $skin = "default"; ///< skin name
 	var $list_count = 20; ///< the number of documents displayed in a page
 	var $page_count = 10; ///< page number
 	var $category_list = NULL; ///< category list
 
-    // 모듈 트리거 목록
-	private $triggers = array(
-		array(
-			'name' => 'menu.getModuleListInSitemap',
-			'module' => 'exam',
-			'type' => 'model',
-			'func' => 'triggerModuleListInSitemap',
-			'position' => 'after'
-		),
-		array(
-			'name' => 'member.deleteMember',
-			'module' => 'exam',
-			'type' => 'controller',
-			'func' => 'triggerDeleteMember',
-			'position' => 'after'
-		)
-	);
+	// 모듈 트리거 목록
+	private $triggers = array(array('name' => 'menu.getModuleListInSitemap', 'module' => 'exam', 'type' => 'model', 'func' => 'triggerModuleListInSitemap', 'position' => 'after'), array('name' => 'member.deleteMember', 'module' => 'exam', 'type' => 'controller', 'func' => 'triggerDeleteMember', 'position' => 'after'));
 
-    /**
-     * @brief 모듈 설치 시 호출.
+	/**
+	 * @brief 모듈 설치 시 호출.
 	 */
 	function moduleInstall()
 	{
 		// 트리거 추가
-        $oModuleController = getController('module');
+		$oModuleController = getController('module');
 		foreach($this->triggers as $trigger)
 		{
-			$oModuleController->insertTrigger($trigger['name'],$trigger['module'],$trigger['type'],$trigger['func'],$trigger['position']);
+			$oModuleController->insertTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
 		}
 
-        // exam generated from the cache directory to use
+		// exam generated from the cache directory to use
 		FileHandler::makeDir('./files/cache/exam');
 
 		return new Object();
@@ -60,24 +45,36 @@ class exam extends ModuleObject
 		$oDB = &DB::getInstance();
 
 		// 복수정답 처리옵션 필드 추가(v0.8 추가)
-		if(!$oDB->isColumnExists("exam_question", "answer_check_type")) return true;
+		if(!$oDB->isColumnExists("exam_question", "answer_check_type"))
+		{
+			return true;
+		}
 
 		// 합격시 지급할 포인트 필드 추가(v0.5 추가)
-		if(!$oDB->isColumnExists("exam", "pass_point")) return true;
-		if(!$oDB->isColumnExists("exam", "pass_group_list")) return true;
-		if(!$oDB->isColumnExists('exam', 'visibility')) return true;
+		if(!$oDB->isColumnExists("exam", "pass_point"))
+		{
+			return true;
+		}
+		if(!$oDB->isColumnExists("exam", "pass_group_list"))
+		{
+			return true;
+		}
+		if(!$oDB->isColumnExists('exam', 'visibility'))
+		{
+			return true;
+		}
 
 		// 트리거 확인해서 추가안된 항목이 있으면 true 리턴
 		$oModuleModel = getModel('module');
-        foreach($this->triggers as $trigger)
+		foreach($this->triggers as $trigger)
 		{
-			$res = $oModuleModel->getTrigger($trigger['name'],$trigger['module'],$trigger['type'],$trigger['func'],$trigger['position']);
-			if (!$res)
+			$res = $oModuleModel->getTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
+			if(!$res)
 			{
 				return true;
 			}
 		}
-        return false;
+		return false;
 	}
 
 	/**
@@ -118,7 +115,7 @@ class exam extends ModuleObject
 					$new_answer = array();
 					foreach($examitem->getQuestions() as $no => $qitem)
 					{
-						$qitem->add('my_answer',$old_answer[$no]);
+						$qitem->add('my_answer', $old_answer[$no]);
 						$new_answer[$no] = $qitem;
 					}
 					$val->answer = serialize($new_answer);
@@ -138,14 +135,14 @@ class exam extends ModuleObject
 			{
 				foreach($output->data as $key => $val)
 				{
-					$score = ceil(1 / ($val->correct_count+$val->wrong_count) * 100);
+					$score = ceil(1 / ($val->correct_count + $val->wrong_count) * 100);
 					$answer = unserialize($val->answer);
 					foreach($answer as $no => $qitem)
 					{
-						$check = ($qitem->get('my_answer')==$qitem->getAnswer())? "O" : "X";
+						$check = ($qitem->get('my_answer') == $qitem->getAnswer()) ? "O" : "X";
 
-						$qitem->add('score',$_score);
-						$qitem->add('my_answer_result',$check);
+						$qitem->add('score', $_score);
+						$qitem->add('my_answer_result', $check);
 						$answer[$no] = $qitem;
 					}
 					$val->answer = serialize($answer);
@@ -154,16 +151,16 @@ class exam extends ModuleObject
 			}
 		}
 
-        // 트리거 확인 및 추가
+		// 트리거 확인 및 추가
 		foreach($this->triggers as $trigger)
 		{
-			$res = $oModuleModel->getTrigger($trigger['name'],$trigger['module'],$trigger['type'],$trigger['func'],$trigger['position']);
-			if (!$res)
+			$res = $oModuleModel->getTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
+			if(!$res)
 			{
-				$oModuleController->insertTrigger($trigger['name'],$trigger['module'],$trigger['type'],$trigger['func'],$trigger['position']);
+				$oModuleController->insertTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
 			}
 		}
-        return new Object(0,'success_updated');
+		return new Object(0, 'success_updated');
 	}
 
 	/**
@@ -180,13 +177,14 @@ class exam extends ModuleObject
 	{
 		// 트리거 제거
 		$oModuleController = getController('module');
-        foreach($this->triggers as $trigger)
+		foreach($this->triggers as $trigger)
 		{
-			$res = $oModuleController->deleteTrigger($trigger['name'],$trigger['module'],$trigger['type'],$trigger['func'],$trigger['position']);
+			$res = $oModuleController->deleteTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
 		}
-		
+
 		return new Object();
 	}
+
 	/**
 	 * Exam Status List
 	 * @return array
@@ -196,25 +194,50 @@ class exam extends ModuleObject
 		$statusList = Context::getLang('statusList');
 		return $statusList;
 	}
+
 	function getResultStatusList()
 	{
 		$statusList = Context::getLang('resultStatusList');
 		return $statusList;
 	}
-	function getConfigStatus($key='',$key_return=false) {
+
+	function getConfigStatus($key = '', $key_return = false)
+	{
 		$list = $this->getStatusList();
-		if($key && isset($list[$key])) return ($key_return)? $key : $list[$key];
-		else return ($key_return)? 'Y' : $list['Y'];
+		if($key && isset($list[$key]))
+		{
+			return ($key_return) ? $key : $list[$key];
+		}
+		else
+		{
+			return ($key_return) ? 'Y' : $list['Y'];
+		}
 	}
-	function getConfigPageType($key=0,$key_return=false) {
+
+	function getConfigPageType($key = 0, $key_return = false)
+	{
 		$list = Context::getLang('pageTypeList');
-		if(isset($list[$key])) return ($key_return)? $key : $list[$key];
-		else return ($key_return)? 0 : $list[0];
+		if(isset($list[$key]))
+		{
+			return ($key_return) ? $key : $list[$key];
+		}
+		else
+		{
+			return ($key_return) ? 0 : $list[0];
+		}
 	}
-	function getConfigResultType($key=0,$key_return=false) {
+
+	function getConfigResultType($key = 0, $key_return = false)
+	{
 		$list = Context::getLang('resultTypeList');
-		if(isset($list[$key])) return ($key_return)? $key : $list[$key];
-		else return ($key_return)? 0 : $list[0];
+		if(isset($list[$key]))
+		{
+			return ($key_return) ? $key : $list[$key];
+		}
+		else
+		{
+			return ($key_return) ? 0 : $list[0];
+		}
 	}
 }
 /* End of file exam.class.php */

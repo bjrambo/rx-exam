@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @class  examAdminModel
  * @author 러키군 (admin@barch.kr)
@@ -9,6 +10,7 @@ class examAdminModel extends exam
 	function init()
 	{
 	}
+
 	/**
 	 * @brief 관리자페이지 -> 시험응시 현황 구해옴
 	 **/
@@ -17,7 +19,7 @@ class examAdminModel extends exam
 		// Search option
 		$args = new stdClass();
 		$args->module_srl = Context::get('module_srl');
-		$args->status = (Context::get('status') && array_key_exists(Context::get('status'),Context::getLang('resultStatusList')))? Context::get('status') : '';
+		$args->status = (Context::get('status') && array_key_exists(Context::get('status'), Context::getLang('resultStatusList'))) ? Context::get('status') : '';
 		$search_target = trim(Context::get('search_target'));
 		$search_target2 = trim(Context::get('search_target2'));
 		$search_target3 = trim(Context::get('search_target3'));
@@ -31,34 +33,34 @@ class examAdminModel extends exam
 			switch($search_target)
 			{
 				case 'document_srl' :
-					$args->document_srl = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->document_srl = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'member_srl' :
-					$args->user_name = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->user_name = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'correct_count' :
-					$args->correct_count = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->correct_count = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'correct_count_more' :
-					$args->correct_count_more = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->correct_count_more = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'correct_count_less' :
-					$args->correct_count_less = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->correct_count_less = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'score' :
-					$args->score = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->score = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'score_more' :
-					$args->score_more = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->score_more = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'score_less' :
-					$args->score_more = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->score_more = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'regdate_more' :
-					$args->regdate_more = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->regdate_more = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 				case 'regdate_less' :
-					$args->regdate_less = preg_replace("/[^0-9]/","",$search_keyword);
+					$args->regdate_less = preg_replace("/[^0-9]/", "", $search_keyword);
 					break;
 			}
 		}
@@ -67,37 +69,37 @@ class examAdminModel extends exam
 			switch($search_target2)
 			{
 				case 'document_srl' :
-					$args->document_srl = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->document_srl = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'user_name' :
-					$args->user_name = str_replace(' ','%',$search_keyword2);
+					$args->user_name = str_replace(' ', '%', $search_keyword2);
 					break;
 				case 'nick_name' :
-					$args->nick_name = str_replace(' ','%',$search_keyword2);
+					$args->nick_name = str_replace(' ', '%', $search_keyword2);
 					break;
 				case 'correct_count' :
-					$args->correct_count = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->correct_count = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'correct_count_more' :
-					$args->correct_count_more = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->correct_count_more = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'correct_count_less' :
-					$args->correct_count_less = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->correct_count_less = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'score' :
-					$args->score = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->score = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'score_more' :
-					$args->score_more = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->score_more = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'score_less' :
-					$args->score_more = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->score_more = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'regdate_more' :
-					$args->regdate_more = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->regdate_more = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 				case 'regdate_less' :
-					$args->regdate_less = preg_replace("/[^0-9]/","",$search_keyword2);
+					$args->regdate_less = preg_replace("/[^0-9]/", "", $search_keyword2);
 					break;
 			}
 		}
@@ -106,37 +108,37 @@ class examAdminModel extends exam
 			switch($search_target3)
 			{
 				case 'document_srl' :
-					$args->document_srl = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->document_srl = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'user_name' :
-					$args->user_name = str_replace(' ','%',$search_keyword3);
+					$args->user_name = str_replace(' ', '%', $search_keyword3);
 					break;
 				case 'nick_name' :
-					$args->nick_name = str_replace(' ','%',$search_keyword3);
+					$args->nick_name = str_replace(' ', '%', $search_keyword3);
 					break;
 				case 'correct_count' :
-					$args->correct_count = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->correct_count = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'correct_count_more' :
-					$args->correct_count_more = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->correct_count_more = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'correct_count_less' :
-					$args->correct_count_less = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->correct_count_less = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'score' :
-					$args->score = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->score = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'score_more' :
-					$args->score_more = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->score_more = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'score_less' :
-					$args->score_more = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->score_more = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'regdate_more' :
-					$args->regdate_more = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->regdate_more = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 				case 'regdate_less' :
-					$args->regdate_less = preg_replace("/[^0-9]/","",$search_keyword3);
+					$args->regdate_less = preg_replace("/[^0-9]/", "", $search_keyword3);
 					break;
 			}
 		}
@@ -144,7 +146,7 @@ class examAdminModel extends exam
 		// Change the query id if selected_group_srl exists (for table join)
 		$sort_order = Context::get('sort_order');
 		$sort_index = Context::get('sort_index');
-		if(!in_array($sort_index,array('question_count','correct_count','score')))
+		if(!in_array($sort_index, array('question_count', 'correct_count', 'score')))
 		{
 			$sort_index = "log_srl";
 		}
@@ -153,7 +155,7 @@ class examAdminModel extends exam
 			$sort_order = 'desc';
 		}
 
-		$args->sort_index = $sort_index; 
+		$args->sort_index = $sort_index;
 		$args->sort_order = $sort_order;
 		Context::set('sort_index', $sort_index);
 		Context::set('sort_order', $sort_order);

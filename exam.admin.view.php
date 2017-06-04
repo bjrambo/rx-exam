@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @class  examAdminView
  * @author 러키군 (admin@barch.kr)
@@ -10,7 +11,8 @@ class examAdminView extends exam
 	{
 		// check module_srl is existed or not
 		$module_srl = Context::get('module_srl');
-		if(!$module_srl && $this->module_srl) {
+		if(!$module_srl && $this->module_srl)
+		{
 			$module_srl = $this->module_srl;
 			Context::set('module_srl', $module_srl);
 		}
@@ -19,19 +21,29 @@ class examAdminView extends exam
 		$oModuleModel = getModel('module');
 
 		// get the module infomation based on the module_srl
-		if($module_srl) {
+		if($module_srl)
+		{
 			$module_info = $oModuleModel->getModuleInfoByModuleSrl($module_srl);
-			if(!$module_info) {
-				Context::set('module_srl','');
+			if(!$module_info)
+			{
+				Context::set('module_srl', '');
 				$this->act = 'list';
-			} else {
-				if($module_info->exam_pass_group_list) $module_info->exam_pass_group_list = explode(",", $module_info->exam_pass_group_list);
+			}
+			else
+			{
+				if($module_info->exam_pass_group_list)
+				{
+					$module_info->exam_pass_group_list = explode(",", $module_info->exam_pass_group_list);
+				}
 				ModuleModel::syncModuleToSite($module_info);
 				$this->module_info = $module_info;
-				Context::set('module_info',$module_info);
+				Context::set('module_info', $module_info);
 			}
 		}
-		if($module_info && $module_info->module != 'exam') return $this->stop("msg_invalid_request");
+		if($module_info && $module_info->module != 'exam')
+		{
+			return $this->stop("msg_invalid_request");
+		}
 
 		// get the module category list
 		$module_category = $oModuleModel->getModuleCategories();
@@ -42,15 +54,19 @@ class examAdminView extends exam
 		$security->encodeHTML('module_category..');
 
 		// setup template path (board admin panel templates is resided in the tpl folder)
-		$template_path = sprintf("%stpl/",$this->module_path);
+		$template_path = sprintf("%stpl/", $this->module_path);
 		$this->setTemplatePath($template_path);
 
 		// install order (sorting) options
 		$order_target = array();
 		$order_target['list_order'] = Context::getLang('exam_srl');
-		foreach($this->order_target as $key) $order_target[$key] = Context::getLang('exam_'.$key);
+		foreach($this->order_target as $key)
+		{
+			$order_target[$key] = Context::getLang('exam_' . $key);
+		}
 		Context::set('order_target', $order_target);
 	}
+
 	/**
 	 * @brief 시험 목록
 	 **/
@@ -66,7 +82,8 @@ class examAdminView extends exam
 		$search_target = Context::get('search_target');
 		$search_keyword = Context::get('search_keyword');
 
-		switch ($search_target){
+		switch($search_target)
+		{
 			case 'mid':
 				$args->s_mid = $search_keyword;
 				break;
@@ -81,7 +98,7 @@ class examAdminView extends exam
 		// get the skins path
 		$oModuleModel = getModel('module');
 		$skin_list = $oModuleModel->getSkins($this->module_path);
-		Context::set('skin_list',$skin_list);
+		Context::set('skin_list', $skin_list);
 
 		$mskin_list = $oModuleModel->getSkins($this->module_path, "m.skins");
 		Context::set('mskin_list', $mskin_list);
@@ -91,7 +108,7 @@ class examAdminView extends exam
 		$layout_list = $oLayoutModel->getLayoutList();
 		Context::set('layout_list', $layout_list);
 
-		$mobile_layout_list = $oLayoutModel->getLayoutList(0,"M");
+		$mobile_layout_list = $oLayoutModel->getLayoutList(0, "M");
 		Context::set('mlayout_list', $mobile_layout_list);
 
 		// use context::set to setup variables on the templates
@@ -102,27 +119,29 @@ class examAdminView extends exam
 		Context::set('page_navigation', $output->page_navigation);
 
 		$security = new Security();
-		$security->encodeHTML('exam_list..browser_title','exam_list..mid');
-		$security->encodeHTML('skin_list..title','mskin_list..title');
-		$security->encodeHTML('layout_list..title','layout_list..layout');
-		$security->encodeHTML('mlayout_list..title','mlayout_list..layout');
+		$security->encodeHTML('exam_list..browser_title', 'exam_list..mid');
+		$security->encodeHTML('skin_list..title', 'mskin_list..title');
+		$security->encodeHTML('layout_list..title', 'layout_list..layout');
+		$security->encodeHTML('mlayout_list..title', 'mlayout_list..layout');
 
 		// 템플릿 파일 지정
 		$this->setTemplateFile('exam_list');
 	}
+
 	/**
 	 * @brief 시험 모듈 추가 및 설정 폼
 	 **/
 	public function dispExamAdminInsert()
 	{
-		if(!in_array($this->module_info->module, array('admin', 'exam'))) {
+		if(!in_array($this->module_info->module, array('admin', 'exam')))
+		{
 			return $this->stop('msg_invalid_request');
 		}
 
 		// get the skins list
 		$oModuleModel = getModel('module');
 		$skin_list = $oModuleModel->getSkins($this->module_path);
-		Context::set('skin_list',$skin_list);
+		Context::set('skin_list', $skin_list);
 
 		$mskin_list = $oModuleModel->getSkins($this->module_path, "m.skins");
 		Context::set('mskin_list', $mskin_list);
@@ -132,7 +151,7 @@ class examAdminView extends exam
 		$layout_list = $oLayoutModel->getLayoutList();
 		Context::set('layout_list', $layout_list);
 
-		$mobile_layout_list = $oLayoutModel->getLayoutList(0,"M");
+		$mobile_layout_list = $oLayoutModel->getLayoutList(0, "M");
 		Context::set('mlayout_list', $mobile_layout_list);
 
 		// retrieve group list
@@ -152,37 +171,43 @@ class examAdminView extends exam
 		Context::set('list_config', $list_config);
 
 		$security = new Security();
-		$security->encodeHTML('skin_list..title','mskin_list..title');
-		$security->encodeHTML('layout_list..title','layout_list..layout');
-		$security->encodeHTML('mlayout_list..title','mlayout_list..layout');
+		$security->encodeHTML('skin_list..title', 'mskin_list..title');
+		$security->encodeHTML('layout_list..title', 'layout_list..layout');
+		$security->encodeHTML('mlayout_list..title', 'mlayout_list..layout');
 		$security->encodeHTML('group_list..');
 		$security->encodeHTML('editor_skin_list..');
 
-		$security->encodeHTML('extra_vars..name','list_config..name');
+		$security->encodeHTML('extra_vars..name', 'list_config..name');
 
 
 		// set the template file
 		$this->setTemplateFile('exam_insert');
 	}
+
 	/**
 	 * @brief 시험 모듈 삭제
 	 **/
 	public function dispExamAdminDelete()
 	{
-		if(!Context::get('module_srl')) return $this->dispExamAdminList();
-		if(!in_array($this->module_info->module, array('admin', 'exam'))) {
+		if(!Context::get('module_srl'))
+		{
+			return $this->dispExamAdminList();
+		}
+		if(!in_array($this->module_info->module, array('admin', 'exam')))
+		{
 			return $this->stop('msg_invalid_request');
 		}
 
 		$module_info = Context::get('module_info');
-		Context::set('module_info',$module_info);
+		Context::set('module_info', $module_info);
 
 		$security = new Security();
-		$security->encodeHTML('module_info..mid','module_info..module','module_info..document_count');
+		$security->encodeHTML('module_info..mid', 'module_info..module', 'module_info..document_count');
 
 		// setup the template file
 		$this->setTemplateFile('exam_delete');
 	}
+
 	/**
 	 * @brief 시험 분류 설정
 	 **/
@@ -199,22 +224,26 @@ class examAdminView extends exam
 	/**
 	 * @brief 권한 설정
 	 **/
-	function dispExamAdminGrantConfig() {
+	function dispExamAdminGrantConfig()
+	{
 		$oModuleAdminModel = getAdminModel('module');
 		$grant_content = $oModuleAdminModel->getModuleGrantHTML($this->module_info->module_srl, $this->xml_info->grant);
 		Context::set('grant_content', $grant_content);
 		$this->setTemplateFile('grant_config');
 	}
+
 	/**
 	 * @brief 스킨 설정
 	 **/
-	function dispExamAdminSkinConfig() {
+	function dispExamAdminSkinConfig()
+	{
 		$oModuleAdminModel = getAdminModel('module');
 		$skin_content = $oModuleAdminModel->getModuleSkinHTML($this->module_info->module_srl);
 		Context::set('skin_content', $skin_content);
 
 		$this->setTemplateFile('skin_config');
 	}
+
 	/**
 	 * @brief 모바일 스킨 설정
 	 **/
@@ -226,6 +255,7 @@ class examAdminView extends exam
 
 		$this->setTemplateFile('skin_config');
 	}
+
 	/**
 	 * @brief 시험응시 현황
 	 **/
@@ -245,12 +275,14 @@ class examAdminView extends exam
 
 		$this->setTemplateFile('result_list');
 	}
+
 	/**
 	 * @brief 시험 응시현황 기록 수정
 	 **/
 	public function dispExamAdminResultUpdate()
 	{
-		if(!in_array($this->module_info->module, array('admin', 'exam'))) {
+		if(!in_array($this->module_info->module, array('admin', 'exam')))
+		{
 			return $this->stop('msg_invalid_request');
 		}
 
@@ -259,7 +291,10 @@ class examAdminView extends exam
 		$log_srl = Context::get('log_srl');
 		$resultitem = $oExamModel->getExamResult($log_srl);
 
-		if(!$resultitem->log_srl) return $this->stop('msg_not_founded');
+		if(!$resultitem->log_srl)
+		{
+			return $this->stop('msg_not_founded');
+		}
 		Context::set('resultitem', $resultitem);
 
 		$security = new Security();
@@ -268,13 +303,14 @@ class examAdminView extends exam
 		// set the template file
 		$this->setTemplateFile('result_update');
 	}
+
 	/**
 	 * @brief board module message
 	 **/
 	public function alertMessage($message)
 	{
-		$script =  sprintf('<script> xAddEventListener(window,"load", function() { alert("%s"); } );</script>', Context::getLang($message));
-		Context::addHtmlHeader( $script );
+		$script = sprintf('<script> xAddEventListener(window,"load", function() { alert("%s"); } );</script>', Context::getLang($message));
+		Context::addHtmlHeader($script);
 	}
 }
 /* End of file exam.admin.view.php */
