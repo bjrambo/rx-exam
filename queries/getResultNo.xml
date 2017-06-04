@@ -1,0 +1,22 @@
+<query id="getResult" action="select">
+    <tables>
+		<table name="exam" alias="exam" />
+        <table name="exam_result" alias="result" type="left join">    
+		 <conditions>
+             
+			 <condition operation="equal" column="exam.document_srl" var="result.document_srl" notnull="notnull" />
+                
+            </conditions>
+		</table>
+    </tables>
+    <columns>
+			
+        <column name="exam.document_srl" />        
+		<column name="count(result.member_srl)" alias="count" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="result.member_srl" var="member_srl" />
+        <condition operation="equal" column="result.status" var="status" pipe="and" />        
+        
+    </conditions>
+</query>

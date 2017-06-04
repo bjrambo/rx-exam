@@ -1,0 +1,94 @@
+<include target="_header.html" />
+
+<div class="exam_search_area">
+    <div class="exam_search">
+        <form action="{getUrl()}" method="get" onsubmit="return procFilter(this, search)" id="exam_search" no-error-return-url="true">
+            <input type="hidden" name="mid" value="{$mid}" />
+            <input type="hidden" name="vid" value="{$vid}" />
+            <input type="hidden" name="category" value="{$category}" />
+            <div class="search_select">
+                <select name="search_target">
+                    <option loop="$search_option=>$key,$val" value="{$key}" selected="selected"|cond="$search_target==$key">{$val}</option>
+                </select>
+            </div>
+            <div class="search_con">
+                <input type="text" name="search_keyword" value="{htmlspecialchars($search_keyword)}" title="{$lang->cmd_search}" class="search_input" />
+                <button type="submit" class="btn"><i class="xe-magnifier"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+{@
+$td_cnt = count($list_config)+2;
+if($list_config['exam_content']) $td_cnt = $td_cnt-1;
+if($grant->manager) $td_cnt = $td_cnt+1;
+}
+<div class="exam_list basic_type">
+	<ul class="exam-guide">
+		<li class="exam-item" loop="$exam_list=>$no,$examitem">
+			<div class="exam-box clearfix">
+
+				<div class="exam-title">
+					<div class="title"><a class="box-link" href="{getUrl('','mid',$mid,'document_srl',$examitem->document_srl)}" onclick="examopen(this.href,'exam');return false"><span class="category">{$category_list[$examitem->get('category_srl')]->title}</span>{$examitem->getTitle()}{$examitem->printExtraImages(60*60*$module_info->duration_new)}</a></div>
+					<div class="info">
+						<a class="box-link" href="{getUrl('','mid',$mid,'document_srl',$examitem->document_srl)}" onclick="examopen(this.href,'exam');return false">
+							<block loop="$list_config=>$key,$val">
+								<span cond="$val->type=='regdate' && $val->idx==-1" class="regdate"><i class="fa fa-clock-o" aria-hidden="true"></i> {$examitem->getRegdate('Y.m.d')}</span>
+								<span cond="$val->type=='exam_date' && $val->idx==-1" class="exam_date"><i class="fa fa-calendar" aria-hidden="true"></i> {$examitem->getExamDate()}</span>
+								<span cond="$val->type=='nick_name' && $val->idx==-1" class="nick_name"><i class="fa fa-user-o" aria-hidden="true"></i><span class="member_{$examitem->get('member_srl')}"> {$examitem->getNickName()}</span></span>
+								<span cond="$val->type=='user_name' && $val->idx==-1" class="user_name"><i class="fa fa-user-o" aria-hidden="true"></i><span class="member_{$examitem->get('member_srl')}"> {$examitem->getUserName()}</span></span>
+								<span cond="$val->type=='last_update' && $val->idx==-1" class="last_update">{zdate($examitem->get('last_update'),'Y.m.d')}</span>
+								<span cond="$val->type=='exam_question_count' && $val->idx==-1" class="exam_question_count"><i class="fa fa-question-circle-o" aria-hidden="true"></i> {$examitem->getQuestionCount()}</span>
+								<span cond="$val->type=='exam_join_count' && $val->idx==-1" class="exam_join_count"><i class="fa fa-users" aria-hidden="true"></i> {$examitem->getJoinCount()}</span>
+								<span cond="$val->type=='exam_join_point' && $val->idx==-1" class="exam_join_point"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i> {$examitem->getJoinPoint()}</span>
+							</block>
+						</a>
+					</div>
+					<div class="grant" cond="!$examitem->isGranted()">
+						<a href="{getUrl('','mid',$mid,'document_srl',$examitem->document_srl)}" onclick="examopen(this.href,'exam');return false" class="btn"><i class="xe-pen"></i> {$lang->exam_join}</a>
+					</div>
+					<div class="exam_manager_group" cond="$examitem->isGranted()">
+						<a href="#" class="btn exam_manager"><i class="xe-tool"></i> {$lang->cmd_management}</a>
+						<div class="exam_manager_wrap">
+							<ul class="exam_manager_list">
+								<li><a href="{getUrl('','mid',$mid,'document_srl',$examitem->document_srl,'act','dispExamCreate')}">시험지 설정</a></li>
+								<li><a href="{getUrl('','mid',$mid,'document_srl',$examitem->document_srl,'act','dispExamEditMode','mode','write')}" onclick="examopen(this.href,'exam');return false">문제출제</a></li>
+								<li><a href="{getUrl('','mid',$mid,'document_srl',$examitem->document_srl,'act','dispExamEditMode')}" onclick="examopen(this.href,'exam');return false">편집모드</a></li>
+								<li><a href="{getUrl('','mid',$mid,'document_srl',$examitem->document_srl,'act','dispExamDelete')}">시험지 삭제</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</li>
+	</ul>
+</div>
+<div class="list_footer">
+    <div class="btn_area">
+        <div class="btn_area_l">
+            <a href="{getUrl('','mid',$mid)}" class="btn">
+                <i class="xe-list-ul-l"></i>
+                <span class="btn_txt">{$lang->cmd_list}</span>
+            </a>
+        </div>
+        <div class="btn_area_r">
+            <a href="{getUrl('act','dispExamCreate','document_srl','')}" class="btn">
+                <i class="xe-pen"></i>
+                <span class="btn_txt">{$lang->cmd_exam_write}</span>
+            </a>
+        </div>
+    </div>
+    <!-- PAGINATE -->
+    <div class="exam_paginate" cond="$exam_list">
+		<a href="{getUrl('page','','document_srl','')}" class="pg_btn"><i class="xe-angle-left"><span class="blind">{$lang->first_page}</span></i></a> 
+		<block loop="$page_no=$page_navigation->getNextPage()">
+			<strong cond="$page==$page_no">{$page_no}</strong> 
+			<a cond="$page!=$page_no" href="{getUrl('page',$page_no,'document_srl','')}">{$page_no}</a>
+		</block>
+        <a href="#" class="pg_btn">
+            <i class="xe-angle-right"><span class="blind">다음</span></i>
+        </a>
+    </div>
+    <!-- /PAGINATE -->
+</div>
+<include target="_footer.html" />
