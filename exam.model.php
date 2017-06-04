@@ -110,7 +110,7 @@ class examModel extends exam
 				$examitem = null;
 				$examitem = new examItem();
 				$examitem->setAttribute($attribute);
-				if($is_admin)
+				if(Context::get('logged_info')->is_admin == 'Y')
 				{
 					$examitem->setGrant();
 				}
@@ -138,7 +138,6 @@ class examModel extends exam
 		}
 		$this->_mySetSearchOption($obj, $args, $query_id, $use_division);
 		$output = executeQueryArray($query_id, $args, $columnList);
-		debugPrint($output);
 		// Return if no result or an error occurs
 		if(!$output->toBool() || !count($output->data))
 		{
@@ -160,7 +159,7 @@ class examModel extends exam
 				$examitem = null;
 				$examitem = new examItem();
 				$examitem->setAttribute($attribute);
-				if($is_admin)
+				if(Context::get('logged_info')->is_admin == 'Y')
 				{
 					$examitem->setGrant();
 				}
@@ -168,7 +167,6 @@ class examModel extends exam
 			}
 
 			$output->data[$virtual_number] = $GLOBALS['XE_EXAM_LIST'][$document_srl];
-			debugPrint($output->data);
 			$virtual_number--;
 		}
 		if(count($output->data))
@@ -201,8 +199,6 @@ class examModel extends exam
 		$args->page_count = $searchOpt->page_count ? $searchOpt->page_count : 10;
 		$args->member_srl = $searchOpt->member_srl;
 
-		$logged_info = Context::get('logged_info');
-
 		$args->sort_index = $searchOpt->sort_index;
 
 		// Check the target and sequence alignment
@@ -216,7 +212,7 @@ class examModel extends exam
 		if($searchOpt->mid)
 		{
 			$oModuleModel = getModel('module');
-			$args->module_srl = $oModuleModel->getModuleSrlByMid($obj->mid);
+			$args->module_srl = $oModuleModel->getModuleSrlByMid($searchOpt->mid);
 			unset($searchOpt->mid);
 		}
 
@@ -297,8 +293,6 @@ class examModel extends exam
 		$args->page_count = $searchOpt->page_count ? $searchOpt->page_count : 10;
 		$args->member_srl = $searchOpt->member_srl;
 
-		$logged_info = Context::get('logged_info');
-
 		$args->sort_index = $searchOpt->sort_index;
 
 		// Check the target and sequence alignment
@@ -312,7 +306,7 @@ class examModel extends exam
 		if($searchOpt->mid)
 		{
 			$oModuleModel = getModel('module');
-			$args->module_srl = $oModuleModel->getModuleSrlByMid($obj->mid);
+			$args->module_srl = $oModuleModel->getModuleSrlByMid($searchOpt->mid);
 			unset($searchOpt->mid);
 		}
 
@@ -445,13 +439,13 @@ class examModel extends exam
 	/**
 	 * 시험에 속한 문제 목록을 구함.
 	 * @param int $document_srl
-	 * @return object
+	 * @return object|bool
 	 */
 	function getQuestionList($document_srl)
 	{
 		if(!isset($document_srl))
 		{
-			return;
+			return false;
 		}
 
 		// 해당 시험정보 먼저 구해옴
@@ -461,16 +455,14 @@ class examModel extends exam
 		// return if no doc exists.
 		if(!$examitem->isExists())
 		{
-			return;
+			return false;
 		}
 
 		// return if no question_count exists
 		if($examitem->getQuestionCount() < 1)
 		{
-			return;
+			return false;
 		}
-
-		$module_srl = $examitem->get('module_srl');
 
 		// get a list of questions
 		$args = new stdClass();
@@ -480,47 +472,48 @@ class examModel extends exam
 		// return if an error occurs in the query results
 		if(!$output->toBool())
 		{
-			return;
+			return false;
 		}
 
 		return $output;
 	}
 
 	/**
-	 *    시험결과 기록을 구해옴.
-	 * @return object
+	 * 시험결과 기록을 구해옴.
+	 * @param $log_srl
+	 * @return bool|object
 	 */
-	function getExamResult($log_srl = 0)
+	function getExamResult($log_srl = null)
 	{
-		if(!$log_srl)
+		if($log_srl === null)
 		{
-			return;
+			return false;
 		}
-		$args = new StdClass();
+		$args = new stdClass();
 		$args->log_srl = $log_srl;
-		$output = executeQueryArray('exam.getResult', $args);
+		$output = executeQuery('exam.getResult', $args);
 		if(!$output->toBool())
 		{
-			return;
+			return false;
 		}
-		if($output->data[0])
+		if($output->data)
 		{
-			$output->data[0]->answer = unserialize($output->data[0]->answer);
+			$output->data->answer = unserialize($output->data->answer);
 		}
-		return $output->data[0];
+		return $output->data;
 	}
 
 	/**
 	 *    시험의  응시현황을 구해옴 (문서번호+회원번호)
-	 * @return object
+	 * @return object|bool
 	 */
 	function getExamResultByDocumentSrl($document_srl, $member_srl = 0)
 	{
 		if(!$document_srl)
 		{
-			return;
+			return false;
 		}
-		$args = new StdClass();
+		$args = new stdClass();
 		$args->document_srl = $document_srl;
 		if($member_srl)
 		{
@@ -530,7 +523,7 @@ class examModel extends exam
 		$output = executeQueryArray('exam.getResult', $args);
 		if(!$output->toBool())
 		{
-			return;
+			return false;
 		}
 		if($output->data[0])
 		{
@@ -541,11 +534,10 @@ class examModel extends exam
 
 	/**
 	 *    나의 시험 응시현황 목록을 구해옴.
-	 * @return object
+	 * @return object|bool
 	 */
-	function getExamResultList($obj, $columnList = array())
+	function getExamResultList($obj)
 	{
-		$logged_info = Context::get('logged_info');
 		if($obj->status)
 		{
 			$statusList = $this->getResultStatusList();
@@ -573,7 +565,7 @@ class examModel extends exam
 		$output = executeQueryArray('exam.getResultList', $args);
 		if(!$output->toBool())
 		{
-			return;
+			return false;
 		}
 		if($output->data)
 		{

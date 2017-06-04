@@ -27,7 +27,6 @@ class examAdminModel extends exam
 		$search_keyword2 = trim(Context::get('search_keyword2'));
 		$search_keyword3 = trim(Context::get('search_keyword3'));
 
-		$oMemberModel = getModel('member');
 		if($search_target && $search_keyword)
 		{
 			switch($search_target)

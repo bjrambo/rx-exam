@@ -93,23 +93,6 @@ class examAdminView extends exam
 		}
 
 		$output = executeQueryArray('exam.getModuleList', $args);
-		ModuleModel::syncModuleToSite($output->data);
-
-		// get the skins path
-		$oModuleModel = getModel('module');
-		$skin_list = $oModuleModel->getSkins($this->module_path);
-		Context::set('skin_list', $skin_list);
-
-		$mskin_list = $oModuleModel->getSkins($this->module_path, "m.skins");
-		Context::set('mskin_list', $mskin_list);
-
-		// get the layouts path
-		$oLayoutModel = getModel('layout');
-		$layout_list = $oLayoutModel->getLayoutList();
-		Context::set('layout_list', $layout_list);
-
-		$mobile_layout_list = $oLayoutModel->getLayoutList(0, "M");
-		Context::set('mlayout_list', $mobile_layout_list);
 
 		// use context::set to setup variables on the templates
 		Context::set('total_count', $output->total_count);
@@ -198,9 +181,6 @@ class examAdminView extends exam
 			return $this->stop('msg_invalid_request');
 		}
 
-		$module_info = Context::get('module_info');
-		Context::set('module_info', $module_info);
-
 		$security = new Security();
 		$security->encodeHTML('module_info..mid', 'module_info..module', 'module_info..document_count');
 
@@ -213,6 +193,7 @@ class examAdminView extends exam
 	 **/
 	public function dispExamAdminCategoryList()
 	{
+		//TODO:check again
 		$oDocumentModel = getModel('document');
 		$category_content = $oDocumentModel->getCategoryHTML($this->module_info->module_srl);
 		Context::set('category_content', $category_content);

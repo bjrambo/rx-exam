@@ -133,8 +133,9 @@ class examItem extends Object
 		return $this->document_srl ? true : false;
 	}
 
-	function isGranted() // 관리권한이 있거나 작성자일경우 true return
+	function isGranted()
 	{
+		// 관리권한이 있거나 작성자일경우 true return
 		if($_SESSION['own_exam'][$this->document_srl])
 		{
 			return true;
@@ -281,7 +282,7 @@ class examItem extends Object
 	{
 		if(!$this->document_srl)
 		{
-			return;
+			return null;
 		}
 
 		if($cut_size)
@@ -300,7 +301,7 @@ class examItem extends Object
 	{
 		if(!$this->document_srl)
 		{
-			return;
+			return null;
 		}
 
 		$title = $this->getTitleText($cut_size, $tail);
@@ -330,7 +331,7 @@ class examItem extends Object
 	{
 		if(!$this->document_srl)
 		{
-			return;
+			return null;
 		}
 		if($this->isSecret() && !$this->isGranted() && !$this->isAccessible())
 		{
@@ -401,7 +402,7 @@ class examItem extends Object
 	{
 		if(!$this->document_srl)
 		{
-			return;
+			return null;
 		}
 
 		if($this->isSecret() && !$this->isGranted() && !$this->isAccessible())
@@ -416,13 +417,11 @@ class examItem extends Object
 		}
 
 		$content = $this->get('content');
-		if(!$stripEmbedTagException)
-		{
-			stripEmbedTagForAdmin($content, $this->get('member_srl'));
-		}
+
+		stripEmbedTagForAdmin($content, $this->get('member_srl'));
 
 		// Define a link if using a rewrite module
-		$oContext = &Context::getInstance();
+		$oContext = Context::getInstance();
 		if($oContext->allow_rewrite)
 		{
 			$content = preg_replace('/<a([ \t]+)href=("|\')\.\/\?/i', "<a href=\\2" . Context::getRequestUri() . "?", $content);
@@ -552,7 +551,7 @@ class examItem extends Object
 		$oExamController = getController('exam');
 		if($oExamController->updateJoinCount($this))
 		{
-			$join_count = $this->get('join_count');
+			$join_count = (int)$this->get('join_count');
 			$this->add('join_count', $join_count + 1);
 		}
 	}
@@ -576,11 +575,11 @@ class examItem extends Object
 	{
 		if(!$this->getQuestionCount())
 		{
-			return;
+			return null;
 		}
 		if(!$this->isGranted() && $this->isSecret())
 		{
-			return;
+			return null;
 		}
 
 		// Get a list of comments
@@ -588,7 +587,7 @@ class examItem extends Object
 		$output = $oExamModel->getQuestionList($this->document_srl);
 		if(!$output->toBool() || !count($output->data))
 		{
-			return;
+			return null;
 		}
 
 		$accessible = array();
@@ -621,12 +620,10 @@ class examItem extends Object
 	{
 		if(!$this->document_srl)
 		{
-			return;
+			return null;
 		}
 		// variables for icon list
 		$buffs = array();
-
-		$check_files = false;
 
 		// Check if secret post is
 		if($this->isSecret())
@@ -677,7 +674,7 @@ class examItem extends Object
 	{
 		if(!$this->document_srl)
 		{
-			return;
+			return null;
 		}
 		// Get the icon directory
 		$path = sprintf('%s%s', getUrl(), 'modules/exam/tpl/icons/');
@@ -685,7 +682,7 @@ class examItem extends Object
 		$buffs = $this->getExtraImages($time_check);
 		if(!count($buffs))
 		{
-			return;
+			return null;
 		}
 
 		$buff = array();
@@ -728,9 +725,9 @@ class examItem extends Object
 	 */
 	function getExamMid()
 	{
-		$model = getModel('module');
-		$module = $model->getModuleInfoByModuleSrl($this->get('module_srl'));
-		return $module->mid;
+		$oModuleModel = getModel('module');
+		$module_info = $oModuleModel->getModuleInfoByModuleSrl($this->get('module_srl'));
+		return $module_info->mid;
 	}
 
 	/**
@@ -739,9 +736,9 @@ class examItem extends Object
 	 */
 	function getModuleName()
 	{
-		$model = getModel('module');
-		$module = $model->getModuleInfoByModuleSrl($this->get('module_srl'));
-		return $module->browser_title;
+		$oModuleModel = getModel('module');
+		$module_info = $oModuleModel->getModuleInfoByModuleSrl($this->get('module_srl'));
+		return $module_info->browser_title;
 	}
 
 	function getBrowserTitle()

@@ -132,7 +132,7 @@ class questionItem extends Object
 	{
 		$description = $this->get('description');
 		// rewrite 사용시 경로 변경
-		$oContext = &Context::getInstance();
+		$oContext = Context::getInstance();
 		if($oContext->allow_rewrite)
 		{
 			$description = preg_replace('/<a([ \t]+)href=("|\')\.\/\?/i', "<a href=\\2" . Context::getRequestUri() . "?", $description);

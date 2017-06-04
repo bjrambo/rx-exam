@@ -8,7 +8,7 @@
 	</h1>
 </div>
 <p class="x_alert x_alert-info" id="aboutModule" hidden>{$lang->about_exam}</p>
-<ul class="x_nav x_nav-tabs" cond="$module_info && $act != 'dispExamAdminList'">
+<ul class="x_nav x_nav-tabs">
 	<li cond="$module=='admin'" class="x_active"|cond="$act=='dispExamAdminList'"><a href="{getUrl('act','dispExamAdminList','module_srl','')}">{$lang->cmd_exam_list}</a></li>
 	<li cond="$module_srl" class="x_active"|cond="$act=='dispExamAdminInsert'"><a href="{getUrl('act','dispExamAdminInsert')}">{$lang->cmd_exam_config}</a></li>
 	<li cond="$module_srl" class="x_active"|cond="$act=='dispExamAdminCategoryList'"><a href="{getUrl('act','dispExamAdminCategoryList')}">{$lang->cmd_exam_category_config}</a></li>

@@ -85,7 +85,7 @@ class exam extends ModuleObject
 		$oModuleModel = getModel('module');
 		$oModuleController = getController('module');
 
-		$oDB = &DB::getInstance();
+		$oDB = DB::getInstance();
 
 		// 합격시 지급할 포인트 필드 추가(v0.5 추가)
 		if(!$oDB->isColumnExists("exam", "pass_point"))
@@ -140,13 +140,17 @@ class exam extends ModuleObject
 					foreach($answer as $no => $qitem)
 					{
 						$check = ($qitem->get('my_answer') == $qitem->getAnswer()) ? "O" : "X";
-
-						$qitem->add('score', $_score);
+						$qitem->add('score', $score);
 						$qitem->add('my_answer_result', $check);
 						$answer[$no] = $qitem;
 					}
 					$val->answer = serialize($answer);
 					$_output = executeQuery('exam.updateResultConverter', $val);
+					if($_output->toBool())
+					{
+						$oDB->rollback();
+						return $_output;
+					}
 				}
 			}
 		}
@@ -154,8 +158,7 @@ class exam extends ModuleObject
 		// 트리거 확인 및 추가
 		foreach($this->triggers as $trigger)
 		{
-			$res = $oModuleModel->getTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
-			if(!$res)
+			if(!$oModuleModel->getTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']))
 			{
 				$oModuleController->insertTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
 			}
@@ -179,7 +182,7 @@ class exam extends ModuleObject
 		$oModuleController = getController('module');
 		foreach($this->triggers as $trigger)
 		{
-			$res = $oModuleController->deleteTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
+			$oModuleController->deleteTrigger($trigger['name'], $trigger['module'], $trigger['type'], $trigger['func'], $trigger['position']);
 		}
 
 		return new Object();

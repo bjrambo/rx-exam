@@ -146,8 +146,14 @@ class examController extends exam
 		}
 
 		// 성공 시 시험 목록으로 이동
-		$returnUrl = getNotEncodedUrl('', 'mid', $this->mid);
-		$this->setRedirectUrl($returnUrl);
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'mid', $this->mid));
+		}
 	}
 
 	/**
@@ -198,8 +204,14 @@ class examController extends exam
 		$this->updateCategoryCount($module_srl, $examitem->get('category_srl'));
 
 		// 성공 시 시험 목록으로 이동
-		$returnUrl = getNotEncodedUrl('', 'mid', $this->mid);
-		$this->setRedirectUrl($returnUrl);
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'mid', $this->mid));
+		}
 	}
 
 	/**
@@ -218,7 +230,7 @@ class examController extends exam
 		}
 		$oExamModel = getModel('exam');
 
-		// 시험지 정볼르 구해와서, 문제 출제 궈난이 있는지 체크
+		// 시험지 정볼르 구해와서, 문제 출제 권한이 있는지 체크
 		$document_srl = Context::get('document_srl');
 		$question_srl = Context::get('question_srl');
 
@@ -290,7 +302,7 @@ class examController extends exam
 			}
 			$params->q_answer = implode(",", $new_ans_list);
 		}
-		$args = new StdClass();
+		$args = new stdClass();
 		$args->question_level = (int)$params->q_level;
 		$args->question_type = (int)$params->q_type;
 		$args->title = htmlspecialchars($params->q_title, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
@@ -311,8 +323,9 @@ class examController extends exam
 			$args->question_srl = $question_srl;
 			$output = $this->updateQuestion($args);
 		}
+		// insert
 		else
-		{ // insert
+		{
 			// 신규일때 srl값이 넘어왔으면 첨부파일이 존재하는지 체크
 			if($question_srl)
 			{
@@ -333,7 +346,14 @@ class examController extends exam
 			return $output;
 		}
 		$this->setMessage('success_saved');
-		$this->setRedirectUrl(getNotEncodedUrl('', 'mid', $this->mid, 'document_srl', $examitem->document_srl, 'act', 'dispExamEditMode'));
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'mid', $this->mid, 'document_srl', $examitem->document_srl, 'act', 'dispExamEditMode'));
+		}
 	}
 
 	/**
@@ -570,7 +590,7 @@ class examController extends exam
 		$status = ($score >= $examitem->get('cutline')) ? "P" : "N";
 
 		//score
-		$new_args = new StdClass();
+		$new_args = new stdClass();
 		$new_args->module_srl = $args->module_srl;
 		$new_args->document_srl = $args->document_srl;
 		$new_args->member_srl = $logged_info->member_srl;
@@ -626,7 +646,6 @@ class examController extends exam
 					$output = executeQuery('member.deleteMemberGroupMember', $new_args);
 					if(!$output->toBool())
 					{
-						$oDB->rollback();
 						return $output;
 					}
 					// 그룹 새로 추가
@@ -636,7 +655,6 @@ class examController extends exam
 						$output = $oMemberController->addMemberToGroup($new_args->member_srl, $group_srl);
 						if(!$output->toBool())
 						{
-							$oDB->rollback();
 							return $output;
 						}
 					}
@@ -694,7 +712,7 @@ class examController extends exam
 		$obj->content = nl2br(htmlspecialchars($obj->content, ENT_COMPAT | ENT_HTML401, 'UTF-8', false));
 
 		// begin transaction
-		$oDB = &DB::getInstance();
+		$oDB = DB::getInstance();
 		$oDB->begin();
 
 		// Call a trigger (before)
@@ -723,6 +741,7 @@ class examController extends exam
 		}
 
 		// 관리자가 아닐경우 Hack Tag 제거
+		$logged_info = Context::get('logged_info');
 		if($logged_info->is_admin != 'Y')
 		{
 			$obj->content = removeHackTag($obj->content);
@@ -731,7 +750,6 @@ class examController extends exam
 		$obj->status = 'Y';
 
 		// Insert member's information only if the member is logged-in and not manually registered.
-		$logged_info = Context::get('logged_info');
 		if(Context::get('is_logged'))
 		{
 			$obj->member_srl = $logged_info->member_srl;
@@ -841,7 +859,7 @@ class examController extends exam
 		$obj->content = nl2br(htmlspecialchars($obj->content, ENT_COMPAT | ENT_HTML401, 'UTF-8', false));
 
 		// 관리자가 아닐경우 Hack Tag 제거
-		if($logged_info->is_admin != 'Y')
+		if(Context::get('logged_info')->is_admin != 'Y')
 		{
 			$obj->content = removeHackTag($obj->content);
 		}
@@ -1071,7 +1089,7 @@ class examController extends exam
 	function updateJoinCount($document_srl, $join_count = 0)
 	{
 		$oExamModel = getModel('exam');
-		if(!$question_count)
+		if(!$join_count)
 		{
 			$join_count = $oExamModel->getJoinCount($document_srl);
 		}

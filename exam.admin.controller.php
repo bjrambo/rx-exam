@@ -125,6 +125,7 @@ class examAdminController extends exam
 			$oModuleController->insertModulePartConfig('exam', $output->get('module_srl'), $config);
 		}
 
+		$module_config = new stdClass();
 		$module_config->mlayout_srl = '15787119';
 		$module_config->mskin = 'default';
 		$module_config->layout_srl = '15785574';
@@ -160,10 +161,12 @@ class examAdminController extends exam
 		}
 
 		$oModuleController = getController('module');
-		$output = $oModuleController->deleteModule($module_srl);
+		$deleteOutput = $oModuleController->deleteModule($module_srl);
+		if(!$deleteOutput->toBool())
+		{
+			return $deleteOutput;
+		}
 		$output = $this->deleteModuleAfter($module_srl);
-
-		// Call a trigger (after)
 
 		// Call a trigger (after)
 		if(!$output->toBool())
@@ -183,8 +186,14 @@ class examAdminController extends exam
 		$this->add('page', Context::get('page'));
 		$this->setMessage('success_deleted');
 
-		$returnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module', 'admin', 'act', 'dispExamAdminList');
-		$this->setRedirectUrl($returnUrl);
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispExamAdminList'));
+		}
 	}
 
 	/**
@@ -192,10 +201,12 @@ class examAdminController extends exam
 	 **/
 	public function procExamAdminSaveCategorySettings()
 	{
+		$oModuleModel = getModel('module');
+		$oModuleController = getController('module');
+
 		$module_srl = Context::get('module_srl');
 		$mid = Context::get('mid');
 
-		$oModuleModel = getModel('module');
 		$module_info = $oModuleModel->getModuleInfoByModuleSrl($module_srl);
 		if($module_info->mid != $mid)
 		{
@@ -203,7 +214,7 @@ class examAdminController extends exam
 		}
 
 		$module_info->hide_category = Context::get('hide_category') == 'Y' ? 'Y' : 'N';
-		$oModuleController = getController('module');
+
 		$output = $oModuleController->updateModule($module_info);
 		if(!$output->toBool())
 		{
@@ -211,6 +222,7 @@ class examAdminController extends exam
 		}
 
 		$this->setMessage('success_updated');
+
 		if(Context::get('success_return_url'))
 		{
 			$this->setRedirectUrl(Context::get('success_return_url'));
@@ -231,11 +243,12 @@ class examAdminController extends exam
 		$status = $var->status;
 		$logs = $var->log_srls;
 
-		$oDB = &DB::getInstance();
+		$oDB = DB::getInstance();
 		$oDB->begin();
 
 		$oExamModel = getModel('exam');
 		$oExamController = getController('exam');
+		$members = array();
 		foreach($logs as $key => $log_srl)
 		{
 			// 기록이 존재하는지 체크
@@ -250,6 +263,8 @@ class examAdminController extends exam
 			{
 				case 'modify':
 				{
+					$data_output = getModel('exam')->getExamResult($log_srl);
+					$members[] = $data_output->member_srl;
 					if(array_key_exists($status, Context::getLang('resultStatusList')))
 					{
 						$args->status = $var->status;
@@ -265,6 +280,8 @@ class examAdminController extends exam
 				}
 				case 'delete':
 				{
+					$data_output = getModel('exam')->getExamResult($log_srl);
+					$members[] = $data_output->member_srl;
 					$args->document_srl = $resultitem->document_srl;
 					$output = $oExamController->deleteResult($args);
 					if(!$output->toBool())
@@ -291,8 +308,15 @@ class examAdminController extends exam
 				$oCommunicationController->sendMessage($sender_member_srl, $member_srl, $title, $message, false);
 			}
 		}
-		$returnUrl = Context::get('success_return_url') ? Context::get('success_return_url') : getNotEncodedUrl('', 'module', 'admin', 'act', 'dispExamAdminResultList', 'module_srl', $module_srl);
-		$this->setRedirectUrl($returnUrl);
+
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispExamAdminResultList', 'module_srl', $module_srl));
+		}
 	}
 
 	/**

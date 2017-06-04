@@ -7,6 +7,8 @@
  */
 class examView extends exam
 {
+	var $listConfig = array();
+
 	function init()
 	{
 		$oSecurity = new Security();
@@ -59,6 +61,7 @@ class examView extends exam
 		$this->dispExamCategoryList();
 
 		// 검색옵션 세팅
+		$search_option = array();
 		foreach($this->search_option as $opt)
 		{
 			$search_option[$opt] = Context::getLang($opt);
@@ -180,6 +183,7 @@ class examView extends exam
 			Context::set('total_page', 1);
 			Context::set('page', 1);
 			Context::set('page_navigation', new PageHandler(0, 0, 1, 10));
+			// TODO:check again
 			return;
 		}
 
@@ -294,7 +298,6 @@ class examView extends exam
 			{
 				$group_srls = array();
 			}
-			$group_srls_count = count($group_srls);
 
 			// check the grant after obtained the category list
 			$oDocumentModel = getModel('document');
@@ -426,7 +429,8 @@ class examView extends exam
 			return $this->stop('msg_not_permitted');
 		}
 		$document_srl = Context::get('document_srl');
-		$mode = Context::get('mode'); // join:응시, 기타:index
+		// join:응시, 기타:index
+		$mode = Context::get('mode');
 		$logged_info = Context::get('logged_info');
 
 		$oExamModel = getModel('exam');
@@ -509,7 +513,6 @@ class examView extends exam
 		$mode = Context::get('mode'); // write-문제출제및수정
 		$document_srl = Context::get('document_srl');
 		$question_srl = Context::get('question_srl');
-		$logged_info = Context::get('logged_info');
 
 		$oExamModel = getModel('exam');
 		$examitem = $oExamModel->getExam($document_srl);
@@ -574,7 +577,7 @@ class examView extends exam
 		}
 		$logged_info = Context::get('logged_info');
 
-		$args = new StdClass();
+		$args = new stdClass();
 		$args->member_srl = $logged_info->member_srl;
 		$args->module_srl = $this->module_srl;
 		$args->page = Context::get('page');
